@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:justbite_app/screens/home_screen.dart';
+import 'package:justbite_app/screens/start_screen.dart';
 
 void main() {
   runApp(const MyApp());
