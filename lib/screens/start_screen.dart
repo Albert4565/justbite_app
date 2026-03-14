@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'registration_screen.dart';
+import 'login_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  void onPressed() {}
+class StartScreen extends StatelessWidget {
+  const StartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,13 @@ class HomeScreen extends StatelessWidget {
                     height: heightScreen * 0.065,
                     width: widthScreen * 0.8,
                     child: ElevatedButton(
-                      onPressed: onPressed,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegistrationScreen()
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFFF5900),
                         shape: RoundedRectangleBorder(
@@ -102,7 +108,13 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: onPressed,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginScreen()
+                            ),
+                          );
+                        },
                         child: Text(
                           "Войти",
                           style: TextStyle(

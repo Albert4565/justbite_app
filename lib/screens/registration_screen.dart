@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class RegistrationScreen extends StatelessWidget {
+  const RegistrationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -9,8 +9,7 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: Color(0xFFF5F5F5),
       body: Center(
         child: Text(
-          "Вход",
-          textAlign: TextAlign.center,
+          "Регистрация",
           style: TextStyle(
             fontFamily: "Montserrat",
             fontWeight: FontWeight.w700,
