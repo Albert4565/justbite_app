@@ -13,7 +13,7 @@ class RegistrationScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: "Montserrat",
             fontWeight: FontWeight.w700,
-            fontSize: 24  ,
+            fontSize: 24,
           ),
         ),
       ),
