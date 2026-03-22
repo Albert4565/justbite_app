@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sms_confirm_screen.dart';
 
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({super.key});
@@ -20,9 +21,7 @@ class RegistrationScreen extends StatelessWidget {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              vertical: heightScreen * 0.03
-            ),
+            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.03),
             child: Column(
               children: [
                 Text(
@@ -97,10 +96,14 @@ class RegistrationScreen extends StatelessWidget {
                             ),
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
-                            buildCounter: (
-                              context,
-                              {required currentLength, required maxLength, required isFocused}
-                            ) => null,
+                            buildCounter:
+                                (
+                                  context, {
+                                  required currentLength,
+                                  required maxLength,
+                                  required isFocused,
+                                }
+                              ) => null,
                           ),
                         ),
 
@@ -123,7 +126,14 @@ class RegistrationScreen extends StatelessWidget {
                   width: widthScreen * 0.9,
                   height: heightScreen * 0.075,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SmsConfirmScreen()
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
@@ -162,22 +172,21 @@ class RegistrationScreen extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      minimumSize: Size(widthScreen * 0.9, heightScreen * 0.075),
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
                       ),
                       backgroundColor: Colors.white,
-                      side: BorderSide(
-                        color: Color(0xFFE0E0E0),
-                      ),
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
                     onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/images/icon_vk.png"
-                        ),
+                        Image.asset("assets/images/icon_vk.png"),
 
                         SizedBox(width: widthScreen * 0.03),
 
@@ -187,7 +196,7 @@ class RegistrationScreen extends StatelessWidget {
                             color: Color(0xFF1A1A1A),
                             fontFamily: "Montserrat",
                             fontWeight: FontWeight.w500,
-                            fontSize: heightScreen * 0.025
+                            fontSize: heightScreen * 0.025,
                           ),
                         ),
                       ],
@@ -201,22 +210,21 @@ class RegistrationScreen extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      minimumSize: Size(widthScreen * 0.9, heightScreen * 0.075),
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
                       ),
                       backgroundColor: Colors.white,
-                      side: BorderSide(
-                        color: Color(0xFFE0E0E0),
-                      ),
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
                     onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/images/icon_ya.png"
-                        ),
+                        Image.asset("assets/images/icon_ya.png"),
 
                         SizedBox(width: widthScreen * 0.03),
 
@@ -226,7 +234,7 @@ class RegistrationScreen extends StatelessWidget {
                             color: Color(0xFF1A1A1A),
                             fontFamily: "Montserrat",
                             fontWeight: FontWeight.w500,
-                            fontSize: heightScreen * 0.025
+                            fontSize: heightScreen * 0.025,
                           ),
                         ),
                       ],
@@ -240,22 +248,21 @@ class RegistrationScreen extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      minimumSize: Size(widthScreen * 0.9, heightScreen * 0.075),
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
                       ),
                       backgroundColor: Colors.white,
-                      side: BorderSide(
-                        color: Color(0xFFE0E0E0),
-                      ),
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
                     onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          "assets/images/icon_mail.png"
-                        ),
+                        Image.asset("assets/images/icon_mail.png"),
 
                         SizedBox(width: widthScreen * 0.03),
 
@@ -265,7 +272,7 @@ class RegistrationScreen extends StatelessWidget {
                             color: Color(0xFF1A1A1A),
                             fontFamily: "Montserrat",
                             fontWeight: FontWeight.w500,
-                            fontSize: heightScreen * 0.025
+                            fontSize: heightScreen * 0.025,
                           ),
                         ),
                       ],
