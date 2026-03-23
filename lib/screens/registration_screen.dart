@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'sms_confirm_screen.dart';
+import 'login_screen.dart';
 
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({super.key});
@@ -102,8 +103,7 @@ class RegistrationScreen extends StatelessWidget {
                                   required currentLength,
                                   required maxLength,
                                   required isFocused,
-                                }
-                              ) => null,
+                                }) => null,
                           ),
                         ),
 
@@ -130,7 +130,7 @@ class RegistrationScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SmsConfirmScreen()
+                          builder: (context) => const SmsConfirmScreen(),
                         ),
                       );
                     },
@@ -295,7 +295,14 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
                       child: Text(
                         "Войти",
                         style: TextStyle(
