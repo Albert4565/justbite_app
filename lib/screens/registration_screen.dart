@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'sms_confirm_screen.dart';
 import 'login_screen.dart';
 
+
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({super.key});
 
