@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:justbite_app/screens/registration_screen.dart';
 import 'home_screen.dart';
-import 'registration_screen.dart';
 
 class CompleteProfileScreen extends StatelessWidget {
   const CompleteProfileScreen({super.key});
