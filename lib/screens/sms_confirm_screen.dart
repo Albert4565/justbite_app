@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'complete_profile_screen.dart';
 
 class SmsConfirmScreen extends StatelessWidget {
   const SmsConfirmScreen({super.key});
@@ -53,9 +54,7 @@ class SmsConfirmScreen extends StatelessWidget {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              vertical: heightScreen * 0.03
-            ),
+            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.03),
             child: Column(
               children: [
                 Padding(
@@ -104,7 +103,7 @@ class SmsConfirmScreen extends StatelessWidget {
                       icon: Icon(
                         Icons.edit,
                         color: Color(0xFFFF5900),
-                        size: widthScreen * 0.05
+                        size: widthScreen * 0.05,
                       ),
                     ),
                   ],
@@ -117,12 +116,12 @@ class SmsConfirmScreen extends StatelessWidget {
                   length: 6,
                   keyboardType: TextInputType.number,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  textStyle: TextStyle(
-                    fontSize: widthScreen * 0.06
-                  ),
+                  textStyle: TextStyle(fontSize: widthScreen * 0.06),
                   pinTheme: PinTheme(
                     shape: PinCodeFieldShape.box,
-                    fieldOuterPadding: EdgeInsets.symmetric(horizontal: widthScreen * 0.02),
+                    fieldOuterPadding: EdgeInsets.symmetric(
+                      horizontal: widthScreen * 0.02,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                     fieldHeight: heightScreen * 0.075,
                     fieldWidth: widthScreen * 0.1,
@@ -132,7 +131,7 @@ class SmsConfirmScreen extends StatelessWidget {
                     selectedFillColor: Color(0xFFF5F5F5),
                     activeColor: Color(0xFFFF5900),
                     inactiveColor: Color(0xFFC9C9C9),
-                    selectedColor: Color(0xFFFF5900)
+                    selectedColor: Color(0xFFFF5900),
                   ),
                 ),
 
@@ -142,11 +141,18 @@ class SmsConfirmScreen extends StatelessWidget {
                   height: heightScreen * 0.075,
                   width: widthScreen * 0.9,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CompleteProfileScreen(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: Text(
@@ -155,7 +161,7 @@ class SmsConfirmScreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         fontFamily: "Montserrat",
                         fontSize: widthScreen * 0.06,
-                        color: Colors.black
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -174,7 +180,7 @@ class SmsConfirmScreen extends StatelessWidget {
                           color: Color(0xFFFF5900),
                           fontFamily: "Montserrat",
                           fontWeight: FontWeight.w500,
-                          fontSize: widthScreen * 0.045
+                          fontSize: widthScreen * 0.045,
                         ),
                       ),
                     ),
@@ -184,7 +190,7 @@ class SmsConfirmScreen extends StatelessWidget {
                         color: Colors.black,
                         fontSize: widthScreen * 0.045,
                         fontFamily: "Montserrat",
-                        fontWeight: FontWeight.w500
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
