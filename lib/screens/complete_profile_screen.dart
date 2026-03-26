@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'main_screen.dart';
+import 'package:justbite_app/screens/registration_screen.dart';
+import 'home_screen.dart';
+import 'registration_screen.dart';
 
 class CompleteProfileScreen extends StatelessWidget {
   const CompleteProfileScreen({super.key});
@@ -244,7 +245,12 @@ class CompleteProfileScreen extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegistrationScreen(),
+                          ),
+                        );
                       },
                       icon: Icon(
                         Icons.edit,
