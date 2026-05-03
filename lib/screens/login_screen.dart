@@ -1,9 +1,107 @@
 import 'package:flutter/material.dart';
 import 'sms_confirm_screen.dart';
 import 'registration_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _phoneController = TextEditingController();
+  bool _isLoading = false;
+  
+
+  Future<void> _sendSms() async {
+    if (_phoneController.text.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Введите корректный номер телефона')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      String fullPhone = '+7${_phoneController.text}';
+
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: fullPhone,
+
+        verificationCompleted: (credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+        },
+
+        verificationFailed: (e) {
+          setState(() => _isLoading = false);
+          if (!mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Ошибка: ${e.message}')));
+        },
+
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() => _isLoading = false);
+          if (!mounted) return;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SmsConfirmScreen(
+                verificationId: verificationId,
+                phoneNumber: fullPhone,
+                isRegistration: false,
+              ),
+            ),
+          );
+        },
+
+        codeAutoRetrievalTimeout: (verificationId) {
+          setState(() => _isLoading = false);
+        },
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
+
+  void _handleButtonPress() {
+    if (_isLoading) {
+      return;
+    }
+    _sendSms();
+  }
+
+  Widget _buildButtonChild() {
+    final widthScreen = MediaQuery.of(context).size.width;
+
+    if (_isLoading) {
+      return CircularProgressIndicator(color: Colors.white);
+    }
+    return Text(
+      "Войти",
+      style: TextStyle(
+        color: Colors.black,
+        fontFamily: "Montserrat",
+        fontWeight: FontWeight.w500,
+        fontSize: widthScreen * 0.06,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +174,7 @@ class LoginScreen extends StatelessWidget {
 
                         Expanded(
                           child: TextField(
+                            controller: _phoneController,
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
@@ -126,29 +225,14 @@ class LoginScreen extends StatelessWidget {
                   width: widthScreen * 0.9,
                   height: heightScreen * 0.075,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SmsConfirmScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: _handleButtonPress,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: Text(
-                      "Войти",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Montserrat",
-                        fontWeight: FontWeight.w500,
-                        fontSize: widthScreen * 0.06,
-                      ),
-                    ),
+                    child: _buildButtonChild(),
                   ),
                 ),
 
