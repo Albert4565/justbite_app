@@ -1,9 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'complete_profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'home_screen.dart';
+import 'dart:async';
 
-class SmsConfirmScreen extends StatelessWidget {
-  const SmsConfirmScreen({super.key});
+class SmsConfirmScreen extends StatefulWidget {
+  final String verificationId;
+  final String phoneNumber;
+  final bool isRegistration;
+
+  const SmsConfirmScreen({
+    super.key,
+    required this.verificationId,
+    required this.phoneNumber,
+    required this.isRegistration,
+  });
+
+  @override
+  State<SmsConfirmScreen> createState() => _SmsConfirmScreenState();
+}
+
+class _SmsConfirmScreenState extends State<SmsConfirmScreen> {
+  final _codeController = TextEditingController();
+  bool _isLoading = false;
+  int _timerSeconds = 60;
+  Timer? _timer;
+  bool _canResend = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timerSeconds > 0) {
+        setState(() => _timerSeconds--);
+      } else {
+        setState(() => _canResend = true);
+        _timer?.cancel();
+      }
+    });
+  }
+
+  String get _formattedTimer {
+    final minutes = _timerSeconds ~/ 60;
+    final seconds = _timerSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _handleButtonPress() {
+    if (_isLoading) {
+      return;
+    }
+    _verifyCode();
+  }
+
+  Widget _buildButtonChild() {
+    final widthScreen = MediaQuery.of(context).size.width;
+
+    if (_isLoading) {
+      return CircularProgressIndicator(color: Colors.white);
+    }
+    return Text(
+      "Подтвердить",
+      style: TextStyle(
+        fontWeight: FontWeight.w500,
+        fontFamily: "Montserrat",
+        fontSize: widthScreen * 0.06,
+        color: Colors.black,
+      ),
+    );
+  }
+
+  void _handleResendPress() {
+    if (!_canResend) {
+      return;
+    }
+    _resendCode();
+  }
+
+  Future<void> _verifyCode() async {
+    if (_codeController.text.length != 6) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Введите 6-значный код')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId,
+        smsCode: _codeController.text,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (!mounted) return;
+
+      if (widget.isRegistration) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CompleteProfileScreen(),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: ${e.message}')));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
+
+  Future<void> _resendCode() async {
+    if (!_canResend) return;
+
+    setState(() {
+      _timerSeconds = 60;
+      _canResend = false;
+    });
+    _startTimer();
+
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        verificationCompleted: (credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+        },
+        verificationFailed: (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Ошибка: ${e.message}')));
+        },
+        codeSent: (verificationId, resendToken) {},
+        codeAutoRetrievalTimeout: (verificationId) {},
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _codeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +252,7 @@ class SmsConfirmScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "+7 (999) 123-60-90",
+                      widget.phoneNumber,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -117,6 +281,11 @@ class SmsConfirmScreen extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   mainAxisAlignment: MainAxisAlignment.center,
                   textStyle: TextStyle(fontSize: widthScreen * 0.06),
+
+                  onChanged: (value) {
+                    _codeController.text = value;
+                  },
+
                   pinTheme: PinTheme(
                     shape: PinCodeFieldShape.box,
                     fieldOuterPadding: EdgeInsets.symmetric(
@@ -141,29 +310,14 @@ class SmsConfirmScreen extends StatelessWidget {
                   height: heightScreen * 0.075,
                   width: widthScreen * 0.9,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CompleteProfileScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: _handleButtonPress,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: Text(
-                      "Подтвердить",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontFamily: "Montserrat",
-                        fontSize: widthScreen * 0.06,
-                        color: Colors.black,
-                      ),
-                    ),
+                    child: _buildButtonChild(),
                   ),
                 ),
 
@@ -173,7 +327,7 @@ class SmsConfirmScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: _handleResendPress,
                       child: Text(
                         "Отправить код повторно",
                         style: TextStyle(
@@ -185,7 +339,7 @@ class SmsConfirmScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "(0:59)",
+                      "($_formattedTimer)",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: widthScreen * 0.045,
