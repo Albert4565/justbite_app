@@ -69,6 +69,14 @@ flutter:
       - assets/images/icon_vk.png
       - assets/images/icon_ya.png
       - assets/images/icon_mail.png
+      - assets/images/burgers.png
+      - assets/images/soups.png
+      - assets/images/drinks.png
+      - assets/images/desserts.png
+      - assets/images/pizza.png
+      - assets/images/brownie.png
+      - assets/images/caesar.png
+      - assets/images/pepperoni.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
