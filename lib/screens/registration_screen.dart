@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'sms_confirm_screen.dart';
 import 'login_screen.dart';
-
+import 'registration_email_screen.dart';
 
 class RegistrationScreen extends StatelessWidget {
   const RegistrationScreen({super.key});
@@ -259,7 +259,14 @@ class RegistrationScreen extends StatelessWidget {
                       backgroundColor: Colors.white,
                       side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegistrationEmailScreen(),
+                        ),
+                      );
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
