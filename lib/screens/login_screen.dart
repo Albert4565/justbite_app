@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:justbite_app/screens/login_email_screen.dart';
 import 'sms_confirm_screen.dart';
 import 'registration_screen.dart';
 
@@ -258,7 +259,14 @@ class LoginScreen extends StatelessWidget {
                       backgroundColor: Colors.white,
                       side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginEmailScreen(),
+                        ),
+                      );
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
