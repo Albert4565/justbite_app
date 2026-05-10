@@ -221,19 +221,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: const BorderRadius.vertical(
+                                  color: Color(0xFFF5F5F5),
+                                  borderRadius: BorderRadius.vertical(
                                       top: Radius.circular(16)),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
+                                  borderRadius: BorderRadius.vertical(
                                       top: Radius.circular(16)),
                                   child: Image.asset(
                                     _categories[index]['image']!,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     errorBuilder: (context, error, stackTrace) {
-                                      return const Center(
+                                      return Center(
                                         child: Icon(Icons.restaurant,
                                             color: Color(0xFFC9C9C9)),
                                       );
@@ -360,10 +360,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Color(0xFFFF5900),
                                           borderRadius: BorderRadius.circular(10),
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.add,
                                           color: Colors.black,
-                                          size: 20,
+                                          size: widthScreen * 0.05,
                                         ),
                                       ),
                                     ],
