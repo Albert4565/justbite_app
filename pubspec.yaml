@@ -77,6 +77,8 @@ flutter:
       - assets/images/brownie.png
       - assets/images/caesar.png
       - assets/images/pepperoni.png
+      - assets/images/breakfast.png
+      - assets/images/salads.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
