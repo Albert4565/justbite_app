@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:justbite_app/screens/registration_screen.dart';
 import 'home_screen.dart';
 
 class CompleteProfileScreen extends StatelessWidget {
@@ -62,7 +61,7 @@ class CompleteProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.025),
+                SizedBox(height: heightScreen * 0.02),
 
                 Text(
                   "Завершение профиля",
@@ -74,7 +73,7 @@ class CompleteProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.04),
+                SizedBox(height: heightScreen * 0.02),
 
                 Align(
                   alignment: Alignment.centerLeft,
@@ -218,46 +217,95 @@ class CompleteProfileScreen extends StatelessWidget {
 
                 SizedBox(height: heightScreen * 0.02),
 
-                Text(
-                  "Номер",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: widthScreen * 0.05,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: "Montserrat",
-                  ),
-                ),
-
-                SizedBox(height: heightScreen * 0.001),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "+7 (999) 123-60-90",
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: widthScreen * 0.05),
+                    child: Text(
+                      "Номер телефона",
                       style: TextStyle(
                         color: Colors.black,
-                        fontFamily: "Montserrat",
                         fontWeight: FontWeight.w500,
+                        fontFamily: "Montserrat",
                         fontSize: widthScreen * 0.05,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegistrationScreen(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.edit,
-                        color: Color(0xFFFF5900),
-                        size: widthScreen * 0.05,
-                      ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.02),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.05),
+                  child: Container(
+                    height: heightScreen * 0.075,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black),
                     ),
-                  ],
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: widthScreen * 0.04,
+                          ),
+                          child: Text(
+                            "+7",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Montserrat",
+                              fontWeight: FontWeight.w700,
+                              fontSize: heightScreen * 0.025,
+                            ),
+                          ),
+                        ),
+
+                        VerticalDivider(color: Colors.black),
+
+                        Expanded(
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "Montserrat",
+                              fontSize: heightScreen * 0.025,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Номер телефона",
+                              hintStyle: TextStyle(
+                                color: Color(0xFFC9C9C9),
+                                fontFamily: "Montserrat",
+                                fontWeight: FontWeight.w700,
+                                fontSize: heightScreen * 0.025,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: widthScreen * 0.03,
+                              ),
+                            ),
+                            keyboardType: TextInputType.phone,
+                            maxLength: 10,
+                            buildCounter:
+                                (
+                                  context, {
+                                  required currentLength,
+                                  required maxLength,
+                                  required isFocused,
+                                }) => null,
+                          ),
+                        ),
+
+                        Padding(
+                          padding: EdgeInsets.only(right: widthScreen * 0.04),
+                          child: Icon(
+                            Icons.call,
+                            color: Color(0xFFC9C9C9),
+                            size: heightScreen * 0.025,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
                 SizedBox(height: heightScreen * 0.03),
@@ -309,7 +357,7 @@ class CompleteProfileScreen extends StatelessWidget {
                       color: Color(0xFF7A7A7A),
                       fontFamily: "Montserrat",
                       fontWeight: FontWeight.w500,
-                      fontSize: widthScreen * 0.045,
+                      fontSize: widthScreen * 0.05,
                     ),
                   ),
                 ),

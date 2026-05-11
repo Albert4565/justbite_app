@@ -150,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   SizedBox(width: widthScreen * 0.03),
-                  
+
                   Expanded(
                     flex: 15,
                     child: GestureDetector(
@@ -184,7 +184,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CatalogScreen(),
+                        ),
+                      );
+                    },
                     child: Text(
                       'Все >',
                       style: TextStyle(
@@ -223,21 +230,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 decoration: BoxDecoration(
                                   color: Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                    top: Radius.circular(16),
+                                  ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                    top: Radius.circular(16),
+                                  ),
                                   child: Image.asset(
                                     _categories[index]['image']!,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Center(
-                                        child: Icon(Icons.restaurant,
-                                            color: Color(0xFFC9C9C9)),
-                                      );
-                                    },
                                   ),
                                 ),
                               ),
@@ -306,21 +309,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF5F5F5),
                                   borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                    top: Radius.circular(16),
+                                  ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                    top: Radius.circular(16),
+                                  ),
                                   child: Image.asset(
                                     _popularDishes[index]['image']!,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Center(
-                                        child: Icon(Icons.restaurant,
-                                            color: Color(0xFFC9C9C9)),
-                                      );
-                                    },
                                   ),
                                 ),
                               ),
@@ -358,7 +357,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         height: widthScreen * 0.08,
                                         decoration: BoxDecoration(
                                           color: Color(0xFFFF5900),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: Icon(
                                           Icons.add,
@@ -397,9 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SizedBox(
           width: double.infinity,
           height: heightScreen,
-          child: SafeArea(
-            child: screens[myIndex],
-          ),
+          child: SafeArea(child: screens[myIndex]),
         ),
       ),
       bottomNavigationBar: Container(

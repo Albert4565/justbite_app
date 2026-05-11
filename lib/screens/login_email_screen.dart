@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'registration_email_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginEmailScreen extends StatelessWidget {
@@ -14,38 +15,6 @@ class LoginEmailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 3,
-        shadowColor: Colors.black,
-        leadingWidth: widthScreen * 0.33,
-        leading: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_back,
-                color: Color(0xFFFF5900),
-                size: widthScreen * 0.05,
-              ),
-
-              SizedBox(width: widthScreen * 0.05),
-
-              Text(
-                "Назад",
-                style: TextStyle(
-                  color: Color(0xFFFF5900),
-                  fontFamily: "Montserrat",
-                  fontWeight: FontWeight.w500,
-                  fontSize: widthScreen * 0.05,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -53,7 +22,7 @@ class LoginEmailScreen extends StatelessWidget {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.03),
+            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
             child: Column(
               children: [
                 Text(
@@ -78,7 +47,7 @@ class LoginEmailScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.075),
+                SizedBox(height: heightScreen * 0.01),
 
                 Align(
                   alignment: Alignment.centerLeft,
@@ -203,7 +172,7 @@ class LoginEmailScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.02),
+                SizedBox(height: heightScreen * 0.01),
 
                 TextButton(
                   onPressed: () {
@@ -217,7 +186,7 @@ class LoginEmailScreen extends StatelessWidget {
                   child: Text(
                     "Забыли пароль?",
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF7A7A7A),
                       fontFamily: "Montserrat",
                       fontWeight: FontWeight.w500,
                       fontSize: widthScreen * 0.05,
@@ -225,7 +194,7 @@ class LoginEmailScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.02),
+                SizedBox(height: heightScreen * 0.01),
 
                 SizedBox(
                   height: heightScreen * 0.075,
@@ -255,6 +224,133 @@ class LoginEmailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
+
+                SizedBox(height: heightScreen * 0.02),
+
+                Center(
+                  child: Text(
+                    "Другие способы входа",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: "Montserrat",
+                      fontWeight: FontWeight.w500,
+                      fontSize: widthScreen * 0.05,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.02),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("assets/images/icon_vk.png"),
+
+                        SizedBox(width: widthScreen * 0.03),
+
+                        Text(
+                          "VK ID",
+                          style: TextStyle(
+                            color: Color(0xFF1A1A1A),
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: heightScreen * 0.025,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.025),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("assets/images/icon_ya.png"),
+
+                        SizedBox(width: widthScreen * 0.03),
+
+                        Text(
+                          "Яндекс ID",
+                          style: TextStyle(
+                            color: Color(0xFF1A1A1A),
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: heightScreen * 0.025,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.01),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Ещё нет аккаунта?",
+                      style: TextStyle(
+                        fontFamily: "Montserrat",
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: widthScreen * 0.045,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const RegistrationEmailScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Регистрация",
+                        style: TextStyle(
+                          color: Color(0xFFFF5900),
+                          fontFamily: "Montserrat",
+                          fontWeight: FontWeight.w500,
+                          fontSize: widthScreen * 0.045,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'registration_screen.dart';
-import 'login_screen.dart';
+import 'registration_email_screen.dart';
+import 'login_email_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -73,7 +73,7 @@ class StartScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RegistrationScreen()
+                          MaterialPageRoute(builder: (context) => const RegistrationEmailScreen()
                           ),
                         );
                       },
@@ -111,7 +111,7 @@ class StartScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()
+                            MaterialPageRoute(builder: (context) => const LoginEmailScreen()
                             ),
                           );
                         },

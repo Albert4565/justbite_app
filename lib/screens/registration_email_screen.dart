@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'complete_profile_screen.dart';
+import 'login_email_screen.dart';
 
 class RegistrationEmailScreen extends StatelessWidget {
   const RegistrationEmailScreen({super.key});
@@ -13,38 +14,6 @@ class RegistrationEmailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 3,
-        shadowColor: Colors.black,
-        leadingWidth: widthScreen * 0.33,
-        leading: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_back,
-                color: Color(0xFFFF5900),
-                size: widthScreen * 0.05,
-              ),
-
-              SizedBox(width: widthScreen * 0.05),
-
-              Text(
-                "Назад",
-                style: TextStyle(
-                  color: Color(0xFFFF5900),
-                  fontFamily: "Montserrat",
-                  fontWeight: FontWeight.w500,
-                  fontSize: widthScreen * 0.05,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -52,7 +21,7 @@ class RegistrationEmailScreen extends StatelessWidget {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.03),
+            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
             child: Column(
               children: [
                 Text(
@@ -61,11 +30,11 @@ class RegistrationEmailScreen extends StatelessWidget {
                     color: Color(0xFFFF5900),
                     fontWeight: FontWeight.w900,
                     fontFamily: "Montserrat",
-                    fontSize: widthScreen * 0.15,
+                    fontSize: widthScreen * 0.12,
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.01),
+                SizedBox(height: heightScreen * 0.005),
 
                 Text(
                   "Регистрация",
@@ -73,11 +42,11 @@ class RegistrationEmailScreen extends StatelessWidget {
                     color: Colors.black,
                     fontWeight: FontWeight.w700,
                     fontFamily: "Montserrat",
-                    fontSize: widthScreen * 0.085,
+                    fontSize: widthScreen * 0.06,
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.075),
+                SizedBox(height: heightScreen * 0.01),
 
                 Align(
                   alignment: Alignment.centerLeft,
@@ -247,19 +216,7 @@ class RegistrationEmailScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: heightScreen * 0.015),
-
-                Text(
-                  "Минимум 6 символов",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: widthScreen * 0.05,
-                    fontFamily: "Montserrat",
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                SizedBox(height: heightScreen * 0.05),
+                SizedBox(height: heightScreen * 0.03),
 
                 SizedBox(
                   height: heightScreen * 0.075,
@@ -269,7 +226,7 @@ class RegistrationEmailScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
+                          builder: (context) => const CompleteProfileScreen(),
                         ),
                       );
                     },
@@ -289,6 +246,132 @@ class RegistrationEmailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
+
+                SizedBox(height: heightScreen * 0.02),
+
+                Center(
+                  child: Text(
+                    "Другие способы входа",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: "Montserrat",
+                      fontWeight: FontWeight.w500,
+                      fontSize: widthScreen * 0.05,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.02),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("assets/images/icon_vk.png"),
+
+                        SizedBox(width: widthScreen * 0.03),
+
+                        Text(
+                          "VK ID",
+                          style: TextStyle(
+                            color: Color(0xFF1A1A1A),
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: heightScreen * 0.025,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.025),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: Size(
+                        widthScreen * 0.9,
+                        heightScreen * 0.075,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("assets/images/icon_ya.png"),
+
+                        SizedBox(width: widthScreen * 0.03),
+
+                        Text(
+                          "Яндекс ID",
+                          style: TextStyle(
+                            color: Color(0xFF1A1A1A),
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: heightScreen * 0.025,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: heightScreen * 0.005),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Уже есть аккаунт?",
+                      style: TextStyle(
+                        fontFamily: "Montserrat",
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: widthScreen * 0.045,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginEmailScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Войти",
+                        style: TextStyle(
+                          color: Color(0xFFFF5900),
+                          fontFamily: "Montserrat",
+                          fontWeight: FontWeight.w500,
+                          fontSize: widthScreen * 0.045,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

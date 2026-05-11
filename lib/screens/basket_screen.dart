@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:justbite_app/screens/catalog_screen.dart';
 
 class BasketScreen extends StatelessWidget {
   const BasketScreen({super.key});
@@ -28,10 +29,7 @@ class BasketScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.delete_rounded,
-              color: Color(0xFFFF5900),
-            ),
+            icon: Icon(Icons.delete_rounded, color: Color(0xFFFF5900)),
             onPressed: () {},
           ),
         ],
@@ -88,7 +86,14 @@ class BasketScreen extends StatelessWidget {
               height: heightScreen * 0.065,
               width: widthScreen * 0.8,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CatalogScreen(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFFF5900),
                   shape: RoundedRectangleBorder(
@@ -119,7 +124,7 @@ class BasketScreen extends StatelessWidget {
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }
