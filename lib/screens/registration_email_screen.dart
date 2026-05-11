@@ -1,9 +1,110 @@
 import 'package:flutter/material.dart';
 import 'complete_profile_screen.dart';
 import 'login_email_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class RegistrationEmailScreen extends StatelessWidget {
+class RegistrationEmailScreen extends StatefulWidget {
   const RegistrationEmailScreen({super.key});
+
+  @override
+  State<RegistrationEmailScreen> createState() =>
+      _RegistrationEmailScreenState();
+}
+
+class _RegistrationEmailScreenState extends State<RegistrationEmailScreen> {
+  final emailTextInputController = TextEditingController();
+  final passwordTextInputController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  bool isHiddenPassword = true;
+  bool isHiddenConfirmPassword = true;
+
+  @override
+  void dispose() {
+    emailTextInputController.dispose();
+    passwordTextInputController.dispose();
+    confirmPasswordController.dispose();
+
+    super.dispose();
+  }
+
+  void togglePasswordView() {
+    setState(() {
+      isHiddenPassword = !isHiddenPassword;
+    });
+  }
+
+  void togglePasswordConfirmView() {
+    setState(() {
+      isHiddenConfirmPassword = !isHiddenConfirmPassword;
+    });
+  }
+
+  Future<void> registration() async {
+    if (emailTextInputController.text.trim().isEmpty ||
+        !emailTextInputController.text.trim().contains('@')) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Введите корректный email')));
+      return;
+    }
+
+    if (passwordTextInputController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Пароль должен содержать минимум 6 символов')),
+      );
+      return;
+    }
+
+    if (passwordTextInputController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Пароли не совпадают')),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailTextInputController.text.trim(),
+        password: passwordTextInputController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CompleteProfileScreen(),
+        ),
+      );
+
+    } on FirebaseAuthException catch(e) {
+      if (!mounted) return;
+
+      String message = 'Ошибка регистрации';
+
+      if (e.code == 'email-already-in-use') {
+        message = 'Этот email уже зарегистрирован';
+      }
+      else if (e.code == 'weak-password') {
+        message = 'Пароль слишком короткий (минимум 6 символов)';
+      }
+      else if (e.code == 'invalid-email') {
+        message = 'Некорректный email';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +177,7 @@ class RegistrationEmailScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
+                      controller: emailTextInputController,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -138,7 +240,8 @@ class RegistrationEmailScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
-                      obscureText: true,
+                      controller: passwordTextInputController,
+                      obscureText: isHiddenPassword,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -153,9 +256,14 @@ class RegistrationEmailScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                           fontSize: widthScreen * 0.05,
                         ),
-                        suffixIcon: Icon(
-                          Icons.visibility_off_outlined,
-                          color: Color(0xFFC1C1C1),
+                        suffixIcon: InkWell(
+                          onTap: togglePasswordView,
+                          child: Icon(
+                            isHiddenPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                            color: Color(0xFFC1C1C1),
+                          ),
                         ),
                         suffixIconConstraints: BoxConstraints(
                           minHeight: heightScreen * 0.01,
@@ -166,7 +274,6 @@ class RegistrationEmailScreen extends StatelessWidget {
                           left: widthScreen * 0.03,
                         ),
                       ),
-                      keyboardType: TextInputType.visiblePassword,
                     ),
                   ),
                 ),
@@ -183,7 +290,8 @@ class RegistrationEmailScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
-                      obscureText: true,
+                      controller: confirmPasswordController,
+                      obscureText: isHiddenConfirmPassword,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -198,9 +306,14 @@ class RegistrationEmailScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                           fontSize: widthScreen * 0.05,
                         ),
-                        suffixIcon: Icon(
-                          Icons.visibility_off_outlined,
-                          color: Color(0xFFC1C1C1),
+                        suffixIcon: InkWell(
+                          onTap: togglePasswordConfirmView,
+                          child: Icon(
+                            isHiddenConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                            color: Color(0xFFC1C1C1),
+                          ),
                         ),
                         suffixIconConstraints: BoxConstraints(
                           minHeight: heightScreen * 0.01,
@@ -211,7 +324,6 @@ class RegistrationEmailScreen extends StatelessWidget {
                           left: widthScreen * 0.03,
                         ),
                       ),
-                      keyboardType: TextInputType.visiblePassword,
                     ),
                   ),
                 ),
@@ -222,14 +334,7 @@ class RegistrationEmailScreen extends StatelessWidget {
                   height: heightScreen * 0.075,
                   width: widthScreen * 0.9,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CompleteProfileScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: registration,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(

@@ -1,8 +1,81 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
+
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final emailTextInputController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailTextInputController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> forgotPassword() async {
+    if (emailTextInputController.text.trim().isEmpty ||
+        !emailTextInputController.text.trim().contains('@')) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Введите корректный email')));
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: emailTextInputController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Письмо'),
+            content: Text(
+              'Письмо с подтвеждением отправлено на вашу электронную почту',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: Text("ОК"),
+              ),
+            ],
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      String message = 'Ошибка';
+
+      if (e.code == 'user-not-found') {
+        message = 'Пользователь с таким email не найден';
+      } else if (e.code == 'invalid-email') {
+        message = 'Некорректный email';
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +181,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
+                      controller: emailTextInputController,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -146,14 +220,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   height: heightScreen * 0.075,
                   width: widthScreen * 0.9,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: forgotPassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(

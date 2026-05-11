@@ -1,10 +1,94 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'registration_email_screen.dart';
 import 'forgot_password_screen.dart';
 
-class LoginEmailScreen extends StatelessWidget {
+class LoginEmailScreen extends StatefulWidget {
   const LoginEmailScreen({super.key});
+
+  @override
+  State<LoginEmailScreen> createState() => _LoginEmailScreenState();
+}
+
+class _LoginEmailScreenState extends State<LoginEmailScreen> {
+  final emailTextInputController = TextEditingController();
+  final passwordTextInputController = TextEditingController();
+
+  bool isHiddenPassword = true;
+
+  @override
+  void dispose() {
+    emailTextInputController.dispose();
+    passwordTextInputController.dispose();
+
+    super.dispose();
+  }
+
+  void togglePasswordView() {
+    setState(() {
+      isHiddenPassword = !isHiddenPassword;
+    });
+  }
+
+  Future<void> login() async {
+    if (emailTextInputController.text.trim().isEmpty ||
+        !emailTextInputController.text.trim().contains('@')) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Введите корректный email')));
+      return;
+    }
+
+    if (passwordTextInputController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Введите пароль')),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailTextInputController.text.trim(),
+        password: passwordTextInputController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+
+    } on FirebaseAuthException catch(e) {
+      if (!mounted) return;
+
+      String message = 'Ошибка входа';
+
+      if (e.code == 'user-not-found') {
+        message = 'Пользователь с таким email не найден';
+      }
+      else if (e.code == 'wrong-password') {
+        message = 'Неверный пароль';
+      }
+      else if (e.code == 'invalid-email') {
+        message = 'Некорректный email';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +161,7 @@ class LoginEmailScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
+                      controller: emailTextInputController,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -139,7 +224,8 @@ class LoginEmailScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
-                      obscureText: true,
+                      controller: passwordTextInputController,
+                      obscureText: isHiddenPassword,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -154,9 +240,14 @@ class LoginEmailScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                           fontSize: widthScreen * 0.05,
                         ),
-                        suffixIcon: Icon(
-                          Icons.visibility_off_outlined,
-                          color: Color(0xFFC1C1C1),
+                        suffixIcon: InkWell(
+                          onTap: togglePasswordView,
+                          child: Icon(
+                            isHiddenPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                            color: Color(0xFFC1C1C1),
+                          ),
                         ),
                         suffixIconConstraints: BoxConstraints(
                           minHeight: heightScreen * 0.01,
@@ -167,7 +258,6 @@ class LoginEmailScreen extends StatelessWidget {
                           left: widthScreen * 0.03,
                         ),
                       ),
-                      keyboardType: TextInputType.visiblePassword,
                     ),
                   ),
                 ),
@@ -200,14 +290,7 @@ class LoginEmailScreen extends StatelessWidget {
                   height: heightScreen * 0.075,
                   width: widthScreen * 0.9,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
