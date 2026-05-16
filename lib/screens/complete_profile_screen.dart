@@ -1,8 +1,112 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CompleteProfileScreen extends StatelessWidget {
+class CompleteProfileScreen extends StatefulWidget {
   const CompleteProfileScreen({super.key});
+
+  @override
+  State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
+}
+
+class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
+  final nameController = TextEditingController();
+  final addressController = TextEditingController();
+  final phoneController = TextEditingController();
+
+  String? selectedCity;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    addressController.dispose();
+    phoneController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> saveProfile() async {
+    if (nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Введите имя')));
+      return;
+    }
+
+    if (selectedCity == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Выберите город')));
+      return;
+    }
+
+    if (addressController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Введите адрес')));
+      return;
+    }
+
+    if (phoneController.text.trim().isEmpty ||
+        phoneController.text.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Введите корректный номер телефона')),
+      );
+      return;
+    }
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        throw Exception('Пользователь не авторизован');
+      }
+
+      String cityLabel = '';
+      switch (selectedCity) {
+        case 'moscow':
+          cityLabel = 'Москва';
+          break;
+        case 'sarov':
+          cityLabel = 'Саров';
+          break;
+        case 'temnikov':
+          cityLabel = 'Темников';
+          break;
+      }
+
+      String phone = phoneController.text.trim();
+      String formattedPhone =
+          '+7 (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6, 8)}-${phone.substring(8, 10)}';
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'email': user.email,
+        'name': nameController.text.trim(),
+        'city': selectedCity,
+        'cityLabel': cityLabel,
+        'address': addressController.text.trim(),
+        'phone': formattedPhone,
+        'phoneRaw': '+7$phone',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updateAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +207,7 @@ class CompleteProfileScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
+                      controller: nameController,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -154,6 +259,11 @@ class CompleteProfileScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     fontSize: widthScreen * 0.05,
                   ),
+                  onSelected: (String? value) {
+                    setState(() {
+                      selectedCity = value;
+                    });
+                  },
                   dropdownMenuEntries: [
                     DropdownMenuEntry(value: "moscow", label: "Москва"),
                     DropdownMenuEntry(value: "sarov", label: "Саров"),
@@ -191,6 +301,7 @@ class CompleteProfileScreen extends StatelessWidget {
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     child: TextField(
+                      controller: addressController,
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: "Montserrat",
@@ -210,7 +321,7 @@ class CompleteProfileScreen extends StatelessWidget {
                           left: widthScreen * 0.03,
                         ),
                       ),
-                      keyboardType: TextInputType.name,
+                      keyboardType: TextInputType.streetAddress,
                     ),
                   ),
                 ),
@@ -264,6 +375,7 @@ class CompleteProfileScreen extends StatelessWidget {
 
                         Expanded(
                           child: TextField(
+                            controller: phoneController,
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
@@ -314,14 +426,7 @@ class CompleteProfileScreen extends StatelessWidget {
                   width: widthScreen * 0.9,
                   height: heightScreen * 0.075,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: saveProfile,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFF5900),
                       shape: RoundedRectangleBorder(
@@ -339,29 +444,7 @@ class CompleteProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                SizedBox(height: heightScreen * 0.001),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    "Пропустить",
-                    style: TextStyle(
-                      color: Color(0xFF7A7A7A),
-                      fontFamily: "Montserrat",
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthScreen * 0.05,
-                    ),
-                  ),
-                ),
-
+                
                 SizedBox(height: heightScreen * 0.05),
               ],
             ),

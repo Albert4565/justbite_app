@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -31,10 +33,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.settings_outlined,
-              color: Color(0xFFFF5900),
-            ),
+            icon: Icon(Icons.settings_outlined, color: Color(0xFFFF5900)),
             onPressed: () {},
           ),
         ],
@@ -49,9 +48,7 @@ class ProfileScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: heightScreen * 0.03),
-                  ),
+                  Padding(padding: EdgeInsets.only(top: heightScreen * 0.03)),
 
                   Icon(
                     Icons.account_circle_outlined,
@@ -61,33 +58,84 @@ class ProfileScreen extends StatelessWidget {
 
                   SizedBox(height: heightScreen * 0.001),
 
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Montserrat",
-                      fontSize: widthScreen * 0.06,
-                    ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final name = userData['name'];
+
+                      return Text(
+                        '$name',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.06,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      );
+                    },
                   ),
 
                   SizedBox(height: heightScreen * 0.001),
 
-                  Text(
-                    userNumber,
-                    style: TextStyle(
-                      color: Color(0xFF4D4D4D),
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Montserrat",
-                      fontSize: widthScreen * 0.06,
-                    ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final phone = userData['phone'];
+
+                      return Text(
+                        '$phone',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.06,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      );
+                    },
                   ),
 
                   SizedBox(height: heightScreen * 0.03),
 
                   Column(
                     children: ListTile.divideTiles(
-                      context: context, tiles: [
+                      context: context,
+                      tiles: [
                         ListTile(
                           title: Text(
                             "Мои скидки",

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'basket_screen.dart';
 import 'catalog_screen.dart';
 import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,9 +14,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int myIndex = 0;
-
-  final String _userName = 'Альберт';
-  final String _userAddress = 'Саров, ул. Чкалова, д. 57';
 
   final List<Map<String, String>> _categories = [
     {'name': 'Бургеры', 'image': 'assets/images/burgers.png'},
@@ -66,16 +65,40 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(width: widthScreen * 0.02),
                           Flexible(
-                            child: Text(
-                              _userAddress,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Montserrat",
-                                fontSize: widthScreen * 0.04,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                            child: StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Text(
+                                    "Загрузка...",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: "Montserrat",
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: widthScreen * 0.04,
+                                    ),
+                                  );
+                                }
+
+                                final userData = snapshot.data!.data() as Map<String, dynamic>;
+                                final address = userData['address'];
+                                final cityLabel = userData['cityLabel'] ?? '';
+
+                                return Text(
+                                  '$cityLabel, $address',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: "Montserrat",
+                                    fontSize: widthScreen * 0.04,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -84,14 +107,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          _userName,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: widthScreen * 0.04,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.w500,
-                          ),
+                        StreamBuilder<DocumentSnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Text(
+                                "Загрузка...",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Montserrat",
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: widthScreen * 0.04,
+                                ),
+                              );
+                            }
+
+                            final userData = snapshot.data!.data() as Map<String, dynamic>;
+                            final name = userData['name'];
+
+                            return Text(
+                              '$name',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Montserrat",
+                                fontSize: widthScreen * 0.04,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            );
+                          },
                         ),
                         SizedBox(width: widthScreen * 0.01),
                         Icon(
