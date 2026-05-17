@@ -1,9 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'start_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Future<void> exitAccount() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const StartScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка выхода: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +99,8 @@ class ProfileScreen extends StatelessWidget {
                         );
                       }
 
-                      final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
                       final name = userData['name'];
 
                       return Text(
@@ -110,7 +137,8 @@ class ProfileScreen extends StatelessWidget {
                         );
                       }
 
-                      final userData = snapshot.data!.data() as Map<String, dynamic>;
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
                       final phone = userData['phone'];
 
                       return Text(
@@ -193,7 +221,7 @@ class ProfileScreen extends StatelessWidget {
                   SizedBox(height: heightScreen * 0.03),
 
                   TextButton.icon(
-                    onPressed: () {},
+                    onPressed: exitAccount,
                     icon: Icon(
                       Icons.logout,
                       color: Color(0xFFFF5900),

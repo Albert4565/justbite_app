@@ -104,6 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
+
+                    SizedBox(width: widthScreen * 0.07),
+
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

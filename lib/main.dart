@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/home_screen.dart';
-import 'screens/registration_email_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +51,7 @@ class WrapperPage extends StatelessWidget {
           return HomeScreen();
         }
 
-        return RegistrationEmailScreen();
+        return StartScreen();
       },
     );
   }
