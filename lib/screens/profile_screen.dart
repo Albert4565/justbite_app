@@ -11,9 +11,6 @@ class ProfileScreen extends StatelessWidget {
     final widthScreen = mediaQuery.size.width;
     final heightScreen = mediaQuery.size.height;
 
-    String userName = 'Альберт';
-    String userNumber = '+7 (999) 123-45-67';
-
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       resizeToAvoidBottomInset: true,
