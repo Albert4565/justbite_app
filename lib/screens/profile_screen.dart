@@ -1,16 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'start_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Future<void> exitAccount() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const StartScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка выхода: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final widthScreen = mediaQuery.size.width;
     final heightScreen = mediaQuery.size.height;
-
-    String userName = 'Альберт';
-    String userNumber = '+7 (999) 123-45-67';
 
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
@@ -31,10 +56,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.settings_outlined,
-              color: Color(0xFFFF5900),
-            ),
+            icon: Icon(Icons.settings_outlined, color: Color(0xFFFF5900)),
             onPressed: () {},
           ),
         ],
@@ -49,9 +71,7 @@ class ProfileScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: heightScreen * 0.03),
-                  ),
+                  Padding(padding: EdgeInsets.only(top: heightScreen * 0.03)),
 
                   Icon(
                     Icons.account_circle_outlined,
@@ -61,33 +81,86 @@ class ProfileScreen extends StatelessWidget {
 
                   SizedBox(height: heightScreen * 0.001),
 
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Montserrat",
-                      fontSize: widthScreen * 0.06,
-                    ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      final name = userData['name'];
+
+                      return Text(
+                        '$name',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.06,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      );
+                    },
                   ),
 
                   SizedBox(height: heightScreen * 0.001),
 
-                  Text(
-                    userNumber,
-                    style: TextStyle(
-                      color: Color(0xFF4D4D4D),
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Montserrat",
-                      fontSize: widthScreen * 0.06,
-                    ),
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      final phone = userData['phone'];
+
+                      return Text(
+                        '$phone',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.06,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      );
+                    },
                   ),
 
                   SizedBox(height: heightScreen * 0.03),
 
                   Column(
                     children: ListTile.divideTiles(
-                      context: context, tiles: [
+                      context: context,
+                      tiles: [
                         ListTile(
                           title: Text(
                             "Мои скидки",
@@ -148,7 +221,7 @@ class ProfileScreen extends StatelessWidget {
                   SizedBox(height: heightScreen * 0.03),
 
                   TextButton.icon(
-                    onPressed: () {},
+                    onPressed: exitAccount,
                     icon: Icon(
                       Icons.logout,
                       color: Color(0xFFFF5900),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'basket_screen.dart';
 import 'catalog_screen.dart';
 import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,17 +14,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int myIndex = 0;
-
-  final String _userName = 'Альберт';
-  final String _userAddress = 'Саров, ул. Чкалова, д. 57';
-
-  final List<Map<String, String>> _categories = [
-    {'name': 'Бургеры', 'image': 'assets/images/burgers.png'},
-    {'name': 'Супы', 'image': 'assets/images/soups.png'},
-    {'name': 'Десерты', 'image': 'assets/images/desserts.png'},
-    {'name': 'Напитки', 'image': 'assets/images/drinks.png'},
-    {'name': 'Пицца', 'image': 'assets/images/pizza.png'},
-  ];
 
   final List<Map<String, dynamic>> _popularDishes = [
     {'name': 'Брауни', 'price': 300, 'image': 'assets/images/brownie.png'},
@@ -66,8 +57,77 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(width: widthScreen * 0.02),
                           Flexible(
-                            child: Text(
-                              _userAddress,
+                            child: StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Text(
+                                    "Загрузка...",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: "Montserrat",
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: widthScreen * 0.04,
+                                    ),
+                                  );
+                                }
+
+                                final userData =
+                                    snapshot.data!.data()
+                                        as Map<String, dynamic>;
+                                final address = userData['address'];
+                                final cityLabel = userData['cityLabel'] ?? '';
+
+                                return Text(
+                                  '$cityLabel, $address',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: "Montserrat",
+                                    fontSize: widthScreen * 0.04,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(width: widthScreen * 0.07),
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StreamBuilder<DocumentSnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Text(
+                                "Загрузка...",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Montserrat",
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: widthScreen * 0.04,
+                                ),
+                              );
+                            }
+
+                            final userData =
+                                snapshot.data!.data() as Map<String, dynamic>;
+                            final name = userData['name'];
+
+                            return Text(
+                              '$name',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
@@ -76,22 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _userName,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: widthScreen * 0.04,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.w500,
-                          ),
+                            );
+                          },
                         ),
                         SizedBox(width: widthScreen * 0.01),
                         Icon(
@@ -209,58 +255,91 @@ class _HomeScreenState extends State<HomeScreen> {
 
               SizedBox(
                 height: heightScreen * 0.15,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  separatorBuilder: (context, index) =>
-                      SizedBox(width: widthScreen * 0.03),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: widthScreen * 0.25,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                  child: Image.asset(
-                                    _categories[index]['image']!,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                  ),
-                                ),
-                              ),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('categories')
+                      .orderBy('sort_order')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Ошибка: ${snapshot.error}'));
+                    }
+
+                    final categories = snapshot.data!.docs;
+
+                    if (categories.isEmpty) {
+                      return Center(child: Text('Нет категорий'));
+                    }
+
+                    return ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length,
+                      separatorBuilder: (context, index) =>
+                          SizedBox(width: widthScreen * 0.03),
+                      itemBuilder: (context, index) {
+                        final category = categories[index].data() as Map<String, dynamic>;
+                        final name = category['name'] ?? 'Категория';
+                        final imageUrl = category['image'] ?? '';
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CatalogScreen(categoryId: categories[index].id),
+                              )
+                            );
+                          },
+                          child: Container(
+                            width: widthScreen * 0.25,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            Padding(
-                              padding: EdgeInsets.all(widthScreen * 0.02),
-                              child: Text(
-                                _categories[index]['name']!,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: widthScreen * 0.035,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(16),
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(16),
+                                      ),
+                                      child: Image.network(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
+                                Padding(
+                                  padding: EdgeInsets.all(widthScreen * 0.02),
+                                  child: Text(
+                                    name,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: widthScreen * 0.035,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
