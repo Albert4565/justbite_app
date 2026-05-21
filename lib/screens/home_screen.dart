@@ -4,6 +4,7 @@ import 'catalog_screen.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dish_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -281,7 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       separatorBuilder: (context, index) =>
                           SizedBox(width: widthScreen * 0.03),
                       itemBuilder: (context, index) {
-                        final category = categories[index].data() as Map<String, dynamic>;
+                        final category =
+                            categories[index].data() as Map<String, dynamic>;
                         final name = category['name'] ?? 'Категория';
                         final imageUrl = category['image'] ?? '';
 
@@ -290,8 +292,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CatalogScreen(categoryId: categories[index].id),
-                              )
+                                builder: (context) => DishScreen(
+                                  categoryId: categories[index].id,
+                                  categoryName: name,
+                                ),
+                              ),
                             );
                           },
                           child: Container(
