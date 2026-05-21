@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dish_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
   final String? categoryId;
@@ -16,7 +17,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
     final mediaQuery = MediaQuery.of(context);
     final widthScreen = mediaQuery.size.width;
     final heightScreen = mediaQuery.size.height;
-    
+
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       resizeToAvoidBottomInset: true,
@@ -114,12 +115,23 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       separatorBuilder: (context, index) =>
                           SizedBox(height: heightScreen * 0.01),
                       itemBuilder: (context, index) {
-                        final category = categories[index].data() as Map<String, dynamic>;
+                        final category =
+                            categories[index].data() as Map<String, dynamic>;
                         final name = category['name'] ?? 'Категория';
                         final imageUrl = category['image'] ?? '';
 
                         return GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DishScreen(
+                                  categoryId: categories[index].id,
+                                  categoryName: name,
+                                ),
+                              ),
+                            );
+                          },
                           child: Container(
                             height: heightScreen * 0.09,
                             decoration: BoxDecoration(
