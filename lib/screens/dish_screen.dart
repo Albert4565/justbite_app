@@ -251,7 +251,7 @@ class _DishScreenState extends State<DishScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              '$price p.',
+                                              '$price ₽',
                                               style: TextStyle(
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.w700,
