@@ -539,7 +539,9 @@ class _OrderScreenState extends State<OrderScreen> {
                   }
 
                   return Container(
-                    padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.04),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: widthScreen * 0.04,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                     ),
@@ -620,17 +622,15 @@ class _OrderScreenState extends State<OrderScreen> {
                       .collection('users')
                       .doc(userId)
                       .update({
-                    'city': currentCityValue,
-                    'cityLabel': cityLabel,
-                    'address': addressController.text.trim(),
-                  });
+                        'city': currentCityValue,
+                        'cityLabel': cityLabel,
+                        'address': addressController.text.trim(),
+                      });
 
                   if (mounted) Navigator.pop(context);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Ошибка сохранения: $e'),
-                    ),
+                    SnackBar(content: Text('Ошибка сохранения: $e')),
                   );
                 }
               },
@@ -699,6 +699,23 @@ class _OrderScreenState extends State<OrderScreen> {
   void showEditPhoneDialog(BuildContext context) {
     final phoneController = TextEditingController();
 
+    final mediaQuery = MediaQuery.of(context);
+    final heightScreen = mediaQuery.size.height;
+    final widthScreen = mediaQuery.size.width;
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((snapshot) {
+          if (snapshot.exists) {
+            final userData = snapshot.data() as Map<String, dynamic>;
+            final rawPhone = userData['phone'] ?? '';
+            final cleaned = rawPhone.replaceAll(RegExp(r'\D'), '');
+            phoneController.text = cleaned;
+          }
+        });
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -708,27 +725,81 @@ class _OrderScreenState extends State<OrderScreen> {
           decoration: InputDecoration(
             labelText: 'Номер телефона',
             border: OutlineInputBorder(),
+            hintText: '89991234567 или 79991234567',
+            counterText: '',
           ),
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.number,
+          maxLength: 11,
+          buildCounter:
+              (
+                context, {
+                required currentLength,
+                required maxLength,
+                required isFocused,
+              }) => null,
+          onChanged: (value) {
+            final cleaned = value.replaceAll(RegExp(r'\D'), '');
+
+            if (cleaned != value) {
+              phoneController.text = cleaned;
+              phoneController.selection = TextSelection.collapsed(
+                offset: cleaned.length,
+              );
+            }
+          },
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Отмена'),
           ),
           ElevatedButton(
             onPressed: () async {
+              final digits = phoneController.text.replaceAll(RegExp(r'\D'), '');
+
+              if (digits.length != 11) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Введите 11 цифр (7 или 8 + 10 цифр)'),
+                  ),
+                );
+                return;
+              }
+
+              final formattedPhone = formatPhone(digits);
+
+              if (formattedPhone.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Неверный формат номера')),
+                );
+                return;
+              }
+
               final userId = FirebaseAuth.instance.currentUser!.uid;
               await FirebaseFirestore.instance
                   .collection('users')
                   .doc(userId)
-                  .update({'phone': phoneController.text});
-              Navigator.pop(context);
+                  .update({'phone': formattedPhone, 'phoneRaw': digits});
+
+              if (mounted) Navigator.pop(context);
             },
             child: Text('Сохранить'),
           ),
         ],
       ),
     );
+  }
+
+  String formatPhone(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'\D'), '');
+
+    String normalized = cleaned;
+    if (normalized.startsWith('8') && normalized.length == 11) {
+      normalized = '7' + normalized.substring(1);
+    }
+
+    if (normalized.length != 11) return '';
+
+    return '+7 (${normalized.substring(1, 4)}) ${normalized.substring(4, 7)}-${normalized.substring(7, 9)}-${normalized.substring(9, 11)}';
   }
 }
