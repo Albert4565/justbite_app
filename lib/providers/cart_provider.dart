@@ -24,7 +24,13 @@ class CartProvider with ChangeNotifier {
     return _items.values.toList();
   }
 
-  void addItem(String dishId, String name, double price, String image) {
+  int get totalPrepTime {
+    if (_items.isEmpty) return 0;
+
+    return _items.values.fold(0, (sum, item) => sum + item.prepTime);
+  }
+
+  void addItem(String dishId, String name, double price, String image, {int prepTime = 20}) {
     if (_items.containsKey(dishId)) {
       _items.update(
         dishId,
@@ -35,6 +41,7 @@ class CartProvider with ChangeNotifier {
           price: existingItem.price,
           quantity: existingItem.quantity + 1,
           image: existingItem.image,
+          prepTime: existingItem.prepTime,
         ),
       );
     } else {
@@ -47,6 +54,7 @@ class CartProvider with ChangeNotifier {
           price: price,
           quantity: 1,
           image: image,
+          prepTime: prepTime,
         ),
       );
     }
@@ -71,6 +79,7 @@ class CartProvider with ChangeNotifier {
             price: existingItem.price,
             quantity: existingItem.quantity - 1,
             image: existingItem.image,
+            prepTime: existingItem.prepTime,
           ),
         );
       } else {

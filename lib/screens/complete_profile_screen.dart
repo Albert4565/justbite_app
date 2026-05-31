@@ -17,6 +17,34 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   String? selectedCity;
 
+  List<Map<String, String>> _cachedCities = [];
+  bool _citiesLoaded = false;
+
+  Future<void> _loadCities() async {
+    if (_citiesLoaded) return;
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('cities')
+          .orderBy('label')
+          .get();
+
+      _cachedCities = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {
+          'value': data['value'] as String,
+          'label': data['label'] as String,
+        };
+      }).toList();
+
+      _citiesLoaded = true;
+
+      if (mounted) setState(() {});
+    } catch (e) {
+      print('Ошибка загрузки городов: $e');
+    }
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -261,23 +289,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       border: Border.all(color: Colors.black, width: 1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('cities')
-                          .orderBy('label')
-                          .snapshots(),
+                    child: FutureBuilder<void>(
+                      future: _loadCities(),
                       builder: (context, snapshot) {
-                        if (FirebaseAuth.instance.currentUser == null) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
-                            child: Text(
-                              'Пользователь не авторизован',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (!_citiesLoaded) {
                           return Padding(
                             padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
                             child: Center(
@@ -285,39 +300,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             ),
                           );
                         }
-
-                        if (snapshot.hasError) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Ошибка: ${snapshot.error}',
-                                  style: TextStyle(color: Colors.red),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Попробуйте перезагрузить приложение',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        final cities = snapshot.data?.docs ?? [];
-
-                        if (cities.isEmpty) {
+                        
+                        if (_cachedCities.isEmpty) {
                           return Padding(
                             padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
                             child: Text(
-                              'Города не найдены в базе',
-                              style: TextStyle(color: Colors.grey),
+                              'Не удалось загрузить города',
+                              style: TextStyle(color: Colors.red),
                             ),
                           );
                         }
-
+                        
                         return DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: selectedCity,
@@ -331,13 +324,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                                 fontSize: widthScreen * 0.05,
                               ),
                             ),
-                            items: cities.map((doc) {
-                              final data = doc.data() as Map<String, dynamic>?;
-                              if (data == null) return null;
+                            items: _cachedCities.map((city) {
                               return DropdownMenuItem<String>(
-                                value: data['value'] as String? ?? '',
+                                value: city['value'],
                                 child: Text(
-                                  data['label'] as String? ?? 'Город',
+                                  city['label']!,
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontFamily: "Montserrat",
@@ -345,7 +336,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                                   ),
                                 ),
                               );
-                            }).whereType<DropdownMenuItem<String>>().toList(),
+                            }).toList(),
                             onChanged: (String? value) {
                               setState(() {
                                 selectedCity = value;

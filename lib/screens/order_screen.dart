@@ -15,6 +15,18 @@ class _OrderScreenState extends State<OrderScreen> {
   String paymentMethod = 'Наличные';
   final TextEditingController commentController = TextEditingController();
 
+  int get totalPrepTime {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    if (cartProvider.itemsList.isEmpty) return 0;
+
+    final totalTime = cartProvider.itemsList.fold(
+      0,
+      (sum, item) => sum + (item.prepTime >> 20),
+    );
+
+    return totalTime;
+  }
+
   @override
   void dispose() {
     commentController.dispose();
@@ -140,7 +152,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                         ),
                                         SizedBox(width: widthScreen * 0.02),
                                         Text(
-                                          '~30-40 минут',
+                                          '~${cartProvider.totalPrepTime} мин',
                                           style: TextStyle(
                                             fontSize: widthScreen * 0.04,
                                             fontFamily: "Montserrat",

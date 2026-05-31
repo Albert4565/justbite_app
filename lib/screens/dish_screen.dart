@@ -285,6 +285,7 @@ class _DishScreenState extends State<DishScreen> {
                                                     name,
                                                     price.toDouble(),
                                                     image,
+                                                    prepTime: dish['prepTime'] ?? 20,
                                                   );
 
                                                   ScaffoldMessenger.of(
