@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'home_screen.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -21,7 +22,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
     final totalTime = cartProvider.itemsList.fold(
       0,
-      (sum, item) => sum + (item.prepTime >> 20),
+      (sum, item) => sum + (item.prepTime * item.quantity),
     );
 
     return totalTime;
@@ -469,7 +470,184 @@ class _OrderScreenState extends State<OrderScreen> {
                             width: double.infinity,
                             height: heightScreen * 0.07,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final cartProvider = Provider.of<CartProvider>(
+                                  context,
+                                  listen: false,
+                                );
+
+                                if (cartProvider.itemsList.isEmpty) return;
+
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => Center(
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFFFF5900),
+                                    ),
+                                  ),
+                                );
+
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('orders')
+                                      .add({
+                                        'userId': FirebaseAuth
+                                            .instance
+                                            .currentUser!
+                                            .uid,
+                                        'items': cartProvider.itemsList
+                                            .map((item) => item.toMap())
+                                            .toList(),
+                                        'totalAmount': cartProvider.totalAmount,
+                                        'status': 'Принят',
+                                        'createdAt':
+                                            FieldValue.serverTimestamp(),
+                                      });
+
+                                  if (mounted) Navigator.pop(context);
+
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      title: Center(
+                                        child: Icon(
+                                          Icons.check_circle_outline,
+                                          color: Color(0xFFFF5900),
+                                          size: widthScreen * 0.15,
+                                        ),
+                                      ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Заказ принят!',
+                                            style: TextStyle(
+                                              fontSize: widthScreen * 0.05,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'Montserrat',
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+
+                                          SizedBox(height: heightScreen * 0.02),
+
+                                          Container(
+                                            padding: EdgeInsets.all(
+                                              widthScreen * 0.025,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[100],
+                                              borderRadius: BorderRadius.circular(
+                                                10,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.access_time,
+                                                  color: Colors.grey[700],
+                                                  size: widthScreen * 0.05,
+                                                ),
+                                                SizedBox(
+                                                  width: widthScreen * 0.02,
+                                                ),
+                                                Text(
+                                                  '~${cartProvider.totalPrepTime} мин',
+                                                  style: TextStyle(
+                                                    fontSize: widthScreen * 0.04,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          SizedBox(height: heightScreen * 0.013),
+
+                                          Text(
+                                            'Итого: ${cartProvider.totalAmount.toStringAsFixed(0)} ₽',
+                                            style: TextStyle(
+                                              fontSize: widthScreen * 0.045,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFFFF5900),
+                                            ),
+                                          ),
+
+                                          SizedBox(height: heightScreen * 0.02),
+
+                                          Text(
+                                            'Для связи с оператором:',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: widthScreen * 0.03,
+                                            ),
+                                          ),
+                                          Text(
+                                            '+7 (800) 555-35-35',
+                                            style: TextStyle(
+                                              fontSize: widthScreen * 0.04,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: [
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: heightScreen * 0.06,
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              cartProvider.clear();
+                                              Navigator.pop(context);
+                                              Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      HomeScreen(),
+                                                ),
+                                                (route) => false,
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFFFF5900),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Отлично!',
+                                              style: TextStyle(
+                                                fontSize: widthScreen * 0.04,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (mounted) Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Ошибка сохранения заказа: $e',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFFFF5900),
                                 shape: RoundedRectangleBorder(
