@@ -27,7 +27,7 @@ class CartProvider with ChangeNotifier {
   int get totalPrepTime {
     if (_items.isEmpty) return 0;
 
-    return _items.values.fold(0, (sum, item) => sum + item.prepTime);
+    return _items.values.fold(0, (sum, item) => sum + (item.prepTime * item.quantity));
   }
 
   void addItem(String dishId, String name, double price, String image, {int prepTime = 20}) {
