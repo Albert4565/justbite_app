@@ -17,6 +17,34 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   String? selectedCity;
 
+  List<Map<String, String>> _cachedCities = [];
+  bool _citiesLoaded = false;
+
+  Future<void> _loadCities() async {
+    if (_citiesLoaded) return;
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('cities')
+          .orderBy('label')
+          .get();
+
+      _cachedCities = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {
+          'value': data['value'] as String,
+          'label': data['label'] as String,
+        };
+      }).toList();
+
+      _citiesLoaded = true;
+
+      if (mounted) setState(() {});
+    } catch (e) {
+      print('Ошибка загрузки городов: $e');
+    }
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -63,18 +91,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         throw Exception('Пользователь не авторизован');
       }
 
-      String cityLabel = '';
-      switch (selectedCity) {
-        case 'moscow':
-          cityLabel = 'Москва';
-          break;
-        case 'sarov':
-          cityLabel = 'Саров';
-          break;
-        case 'temnikov':
-          cityLabel = 'Темников';
-          break;
+      final cityDoc = await FirebaseFirestore.instance
+          .collection('cities')
+          .where('value', isEqualTo: selectedCity)
+          .get();
+
+      if (cityDoc.docs.isEmpty) {
+        throw Exception('Город не найден');
       }
+
+      final cityData = cityDoc.docs.first.data() as Map<String, dynamic>;
+      final cityLabel = cityData['label'] as String;
 
       String phone = phoneController.text.trim();
       String formattedPhone =
@@ -252,23 +279,74 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
                 SizedBox(height: heightScreen * 0.01),
 
-                DropdownMenu(
-                  width: widthScreen * 0.9,
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                    fontSize: widthScreen * 0.05,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.05),
+                  child: Container(
+                    width: widthScreen * 0.9,
+                    padding: EdgeInsets.symmetric(horizontal: widthScreen * 0.02),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black, width: 1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: FutureBuilder<void>(
+                      future: _loadCities(),
+                      builder: (context, snapshot) {
+                        if (!_citiesLoaded) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
+                            child: Center(
+                              child: CircularProgressIndicator(color: Color(0xFFFF5900)),
+                            ),
+                          );
+                        }
+                        
+                        if (_cachedCities.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: heightScreen * 0.02),
+                            child: Text(
+                              'Не удалось загрузить города',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        }
+                        
+                        return DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedCity,
+                            isExpanded: true,
+                            underline: SizedBox(),
+                            hint: Text(
+                              'Выберите город',
+                              style: TextStyle(
+                                color: Color(0xFFC9C9C9),
+                                fontFamily: "Montserrat",
+                                fontSize: widthScreen * 0.05,
+                              ),
+                            ),
+                            items: _cachedCities.map((city) {
+                              return DropdownMenuItem<String>(
+                                value: city['value'],
+                                child: Text(
+                                  city['label']!,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "Montserrat",
+                                    fontSize: widthScreen * 0.05,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedCity = value;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  onSelected: (String? value) {
-                    setState(() {
-                      selectedCity = value;
-                    });
-                  },
-                  dropdownMenuEntries: [
-                    DropdownMenuEntry(value: "moscow", label: "Москва"),
-                    DropdownMenuEntry(value: "sarov", label: "Саров"),
-                    DropdownMenuEntry(value: "temnikov", label: "Темников"),
-                  ],
                 ),
 
                 SizedBox(height: heightScreen * 0.01),
@@ -444,7 +522,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: heightScreen * 0.05),
               ],
             ),

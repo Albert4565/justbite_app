@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:justbite_app/screens/catalog_screen.dart';
+import 'catalog_screen.dart';
 import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
+import 'order_screen.dart';
+import 'home_screen.dart';
 
 class BasketScreen extends StatelessWidget {
   const BasketScreen({super.key});
@@ -24,6 +26,15 @@ class BasketScreen extends StatelessWidget {
             elevation: 3,
             shadowColor: Colors.black,
             automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Color(0xFFFF5900)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
+            ),
             centerTitle: true,
             title: Text(
               'Корзина',
@@ -151,32 +162,60 @@ class BasketScreen extends StatelessWidget {
                                 height: heightScreen * 0.08,
                                 fit: BoxFit.cover,
                               ),
-                              title: Text(item.name),
-                              subtitle: Text('${item.price} р.'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.remove),
-                                    onPressed: () {
-                                      cartProvider.decreaseQuantity(
-                                        item.dishId,
-                                      );
-                                    },
-                                  ),
-                                  Text('${item.quantity}'),
-                                  IconButton(
-                                    icon: Icon(Icons.add),
-                                    onPressed: () {
-                                      cartProvider.addItem(
-                                        item.dishId,
-                                        item.name,
-                                        item.price,
-                                        item.image,
-                                      );
-                                    },
-                                  ),
-                                ],
+                              title: Text(
+                                item.name,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Montserrat",
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${item.price} ₽',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              trailing: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(),
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Color(0xFFFF5900),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.remove, fontWeight: FontWeight.w700),
+                                      onPressed: () {
+                                        cartProvider.decreaseQuantity(
+                                          item.dishId,
+                                        );
+                                      },
+                                    ),
+                                    Text(
+                                      '${item.quantity}',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Montserrat",
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: widthScreen * 0.04,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.add, fontWeight: FontWeight.w700),
+                                      onPressed: () {
+                                        cartProvider.addItem(
+                                          item.dishId,
+                                          item.name,
+                                          item.price,
+                                          item.image,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -186,9 +225,7 @@ class BasketScreen extends StatelessWidget {
 
                     Container(
                       padding: EdgeInsets.all(widthScreen * 0.05),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
+                      decoration: BoxDecoration(color: Colors.white),
                       child: Column(
                         children: [
                           Row(
@@ -203,7 +240,7 @@ class BasketScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '${cartProvider.totalAmount.toStringAsFixed(0)} р.',
+                                '${cartProvider.totalAmount.toStringAsFixed(0)} ₽',
                                 style: TextStyle(
                                   fontSize: widthScreen * 0.06,
                                   fontWeight: FontWeight.w700,
@@ -215,12 +252,19 @@ class BasketScreen extends StatelessWidget {
                           ),
 
                           SizedBox(height: heightScreen * 0.02),
-                          
+
                           SizedBox(
                             width: double.infinity,
                             height: heightScreen * 0.07,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const OrderScreen(),
+                                  ),
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFFFF5900),
                                 shape: RoundedRectangleBorder(

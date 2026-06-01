@@ -251,7 +251,7 @@ class _DishScreenState extends State<DishScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              '$price p.',
+                                              '$price ₽',
                                               style: TextStyle(
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.w700,
@@ -285,6 +285,7 @@ class _DishScreenState extends State<DishScreen> {
                                                     name,
                                                     price.toDouble(),
                                                     image,
+                                                    prepTime: dish['prepTime'] ?? 20,
                                                   );
 
                                                   ScaffoldMessenger.of(

@@ -524,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.grid_view_outlined, color: Colors.black),
-              activeIcon: Icon(Icons.grid_view),
+              activeIcon: Icon(Icons.grid_view_rounded),
               label: "Каталог",
             ),
             BottomNavigationBarItem(

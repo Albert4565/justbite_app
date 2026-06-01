@@ -5,6 +5,7 @@ class CartItem {
   final double price;
   final int quantity;
   final String image;
+  final int prepTime;
 
   CartItem({
     required this.id,
@@ -13,6 +14,7 @@ class CartItem {
     required this.price,
     required this.quantity,
     required this.image,
+    this.prepTime = 20,
   });
 
   double get total => price * quantity;
@@ -25,6 +27,7 @@ class CartItem {
       'price': price,
       'quantity': quantity,
       'image': image,
+      'prepTime': prepTime,
     };
   }
 
@@ -36,6 +39,7 @@ class CartItem {
       price: map['price'].toDouble(),
       quantity: map['quantity'],
       image: map['image'],
+      prepTime: map['prepTime'] ?? 20,
     );
   }
 }
