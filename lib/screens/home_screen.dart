@@ -5,6 +5,8 @@ import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dish_screen.dart';
+import '../providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,11 +18,54 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int myIndex = 0;
 
-  final List<Map<String, dynamic>> _popularDishes = [
-    {'name': 'Брауни', 'price': 300, 'image': 'assets/images/brownie.png'},
-    {'name': 'Пепперони', 'price': 550, 'image': 'assets/images/pepperoni.png'},
-    {'name': 'Цезарь', 'price': 250, 'image': 'assets/images/caesar.png'},
-  ];
+  List<Map<String, dynamic>> popularDishes = [];
+  List<Map<String, dynamic>> categories = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    try {
+      final dishesSnapshot = await FirebaseFirestore.instance
+          .collection('dishes')
+          .get();
+
+      List<Map<String, dynamic>> allDishes = dishesSnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {...data, 'id': doc.id};
+      }).toList();
+
+      allDishes.shuffle();
+      popularDishes = allDishes.take(5).toList();
+
+      final categoriesSnapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .orderBy('sort_order')
+          .get();
+
+      categories = categoriesSnapshot.docs.take(5).map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {...data, 'id': doc.id};
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Ошибка загрузки данных: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,71 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              SizedBox(height: heightScreen * 0.025),
-
-              Row(
-                children: [
-                  Expanded(
-                    flex: 85,
-                    child: Container(
-                      height: heightScreen * 0.05,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFECECEC),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF666666),
-                          fontFamily: 'Montserrat',
-                          fontSize: widthScreen * 0.045,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Поиск блюд...",
-                          hintStyle: TextStyle(
-                            color: const Color(0xFFC9C9C9),
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.w500,
-                            fontSize: widthScreen * 0.045,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: const Color(0xFFC9C9C9),
-                            size: widthScreen * 0.06,
-                          ),
-                          border: InputBorder.none,
-                          filled: true,
-                          fillColor: Colors.transparent,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: widthScreen * 0.04,
-                            vertical: heightScreen * 0.01,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(width: widthScreen * 0.03),
-
-                  Expanded(
-                    flex: 15,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          myIndex = 2;
-                        });
-                      },
-                      child: Icon(
-                        Icons.shopping_cart_outlined,
-                        color: Colors.black,
-                        size: widthScreen * 0.07,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: heightScreen * 0.035),
+              SizedBox(height: heightScreen * 0.05),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -232,12 +213,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CatalogScreen(),
-                        ),
-                      );
+                      setState(() {
+                        myIndex = 1;
+                      });
                     },
                     child: Text(
                       'Все >',
@@ -256,95 +234,72 @@ class _HomeScreenState extends State<HomeScreen> {
 
               SizedBox(
                 height: heightScreen * 0.15,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('categories')
-                      .orderBy('sort_order')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator());
-                    }
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  separatorBuilder: (context, index) =>
+                      SizedBox(width: widthScreen * 0.03),
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    final name = category['name'] ?? 'Категория';
+                    final imageUrl = category['image'] ?? '';
 
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Ошибка: ${snapshot.error}'));
-                    }
-
-                    final categories = snapshot.data!.docs;
-
-                    if (categories.isEmpty) {
-                      return Center(child: Text('Нет категорий'));
-                    }
-
-                    return ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
-                      separatorBuilder: (context, index) =>
-                          SizedBox(width: widthScreen * 0.03),
-                      itemBuilder: (context, index) {
-                        final category =
-                            categories[index].data() as Map<String, dynamic>;
-                        final name = category['name'] ?? 'Категория';
-                        final imageUrl = category['image'] ?? '';
-
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DishScreen(
-                                  categoryId: categories[index].id,
-                                  categoryName: name,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: widthScreen * 0.25,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFF5F5F5),
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(16),
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(16),
-                                      ),
-                                      child: Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(widthScreen * 0.02),
-                                  child: Text(
-                                    name,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: widthScreen * 0.035,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DishScreen(
+                              categoryId: category['id'],
+                              categoryName: name,
                             ),
                           ),
                         );
                       },
+                      child: Container(
+                        width: widthScreen * 0.25,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFF5F5F5),
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(widthScreen * 0.02),
+                              child: Text(
+                                name,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: widthScreen * 0.035,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -373,14 +328,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: heightScreen * 0.28,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _popularDishes.length,
+                  itemCount: popularDishes.length,
                   separatorBuilder: (context, index) =>
                       SizedBox(width: widthScreen * 0.03),
                   itemBuilder: (context, index) {
+                    final dish = popularDishes[index];
+
                     return GestureDetector(
                       onTap: () {},
                       child: Container(
                         width: widthScreen * 0.35,
+                        height: heightScreen * 0.28,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -388,67 +346,97 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
+                            Container(
+                              height: heightScreen * 0.17,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F5F5),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                  child: Image.asset(
-                                    _popularDishes[index]['image']!,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                  ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                                child: Image.network(
+                                  dish['image'] ?? '',
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(color: Colors.grey[300]);
+                                  },
                                 ),
                               ),
                             ),
-                            Padding(
+
+                            Container(
+                              height: heightScreen * 0.11,
                               padding: EdgeInsets.all(widthScreen * 0.03),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _popularDishes[index]['name']!,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: widthScreen * 0.04,
+                                  Flexible(
+                                    child: Text(
+                                      dish['name'] ?? '',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: widthScreen * 0.035,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  SizedBox(height: heightScreen * 0.005),
+
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        '${_popularDishes[index]['price']} р.',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: widthScreen * 0.04,
+                                      Flexible(
+                                        child: Text(
+                                          '${(dish['price'] as num).toInt()} ₽',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: widthScreen * 0.04,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      Container(
-                                        width: widthScreen * 0.08,
-                                        height: widthScreen * 0.08,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFFF5900),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
+                                      GestureDetector(
+                                        onTap: () {
+                                          final cartProvider =
+                                              Provider.of<CartProvider>(
+                                                context,
+                                                listen: false,
+                                              );
+                                          cartProvider.addItem(
+                                            dish['id'] ?? '',
+                                            dish['name'] ?? '',
+                                            (dish['price'] ?? 0).toDouble(),
+                                            dish['image'] ?? '',
+                                            prepTime: dish['prepTime'] ?? 20,
+                                          );
+                                        },
+                                        child: Container(
+                                          width: widthScreen * 0.08,
+                                          height: widthScreen * 0.08,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFFF5900),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
-                                        ),
-                                        child: Icon(
-                                          Icons.add,
-                                          color: Colors.black,
-                                          size: widthScreen * 0.05,
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.black,
+                                            size: widthScreen * 0.05,
+                                          ),
                                         ),
                                       ),
                                     ],

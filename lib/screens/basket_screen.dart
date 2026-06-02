@@ -3,7 +3,6 @@ import 'catalog_screen.dart';
 import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'order_screen.dart';
-import 'home_screen.dart';
 
 class BasketScreen extends StatelessWidget {
   const BasketScreen({super.key});
@@ -26,15 +25,6 @@ class BasketScreen extends StatelessWidget {
             elevation: 3,
             shadowColor: Colors.black,
             automaticallyImplyLeading: false,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Color(0xFFFF5900)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
-            ),
             centerTitle: true,
             title: Text(
               'Корзина',
@@ -47,7 +37,44 @@ class BasketScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: Icon(Icons.delete_rounded, color: Color(0xFFFF5900)),
-                onPressed: () {},
+                onPressed: () {
+                  if (cartProvider.itemsList.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Корзина уже пуста'),
+                        backgroundColor: Colors.grey,
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('Очистить корзину?'),
+                        content: Text('Все товары будут удалены'),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Отмена'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              cartProvider.clear();
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Корзина очищена'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            },
+                            child: Text('Очистить'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -187,7 +214,10 @@ class BasketScreen extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.remove, fontWeight: FontWeight.w700),
+                                      icon: Icon(
+                                        Icons.remove,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                       onPressed: () {
                                         cartProvider.decreaseQuantity(
                                           item.dishId,
@@ -204,7 +234,10 @@ class BasketScreen extends StatelessWidget {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.add, fontWeight: FontWeight.w700),
+                                      icon: Icon(
+                                        Icons.add,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                       onPressed: () {
                                         cartProvider.addItem(
                                           item.dishId,
