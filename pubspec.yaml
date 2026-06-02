@@ -51,7 +51,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-
+  flutter_native_splash: ^2.4.1
   flutter_launcher_icons: ^0.14.0
 
 # For information on the generic Dart part of this file, see the
@@ -81,6 +81,7 @@ flutter:
       - assets/images/pepperoni.png
       - assets/images/breakfast.png
       - assets/images/salads.png
+      - assets/icons/splash.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -115,3 +116,13 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/iconApp.png"
+
+
+flutter_native_splash:
+  color: "#FF5900"
+  image: assets/icons/splash.png
+
+  android_12:
+    color: "#FF5900"
+    image: assets/icons/splash.png
+  ios: true
