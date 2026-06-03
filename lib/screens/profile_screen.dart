@@ -37,7 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       try {
         final cartProvider = Provider.of<CartProvider>(context, listen: false);
         cartProvider.clear();
-        
+
         await FirebaseAuth.instance.signOut();
 
         if (!mounted) return;
@@ -80,12 +80,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontFamily: "Montserrat",
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: Color(0xFFFF5900)),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
@@ -105,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     size: widthScreen * 0.1,
                   ),
 
-                  SizedBox(height: heightScreen * 0.001),
+                  SizedBox(height: heightScreen * 0.003),
 
                   StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
@@ -143,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
-                  SizedBox(height: heightScreen * 0.001),
+                  SizedBox(height: heightScreen * 0.02),
 
                   StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
@@ -173,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.black,
                           fontWeight: FontWeight.w500,
                           fontFamily: "Montserrat",
-                          fontSize: widthScreen * 0.06,
+                          fontSize: widthScreen * 0.05,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -181,7 +175,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
 
-                  SizedBox(height: heightScreen * 0.03),
+                  SizedBox(height: heightScreen * 0.02),
+
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      final email = userData['email'];
+
+                      return Text(
+                        '$email',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.05,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: heightScreen * 0.02),
+
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          "Загрузка...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w500,
+                            fontSize: widthScreen * 0.06,
+                          ),
+                        );
+                      }
+
+                      final userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      final city = userData['cityLabel'] ?? '';
+                      final address = userData['address'] ?? '';
+
+                      return Text(
+                        '$city, $address',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Montserrat",
+                          fontSize: widthScreen * 0.05,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: heightScreen * 0.04),
 
                   Column(
                     children: ListTile.divideTiles(
@@ -202,25 +274,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Color(0xFFFF5900),
                             size: widthScreen * 0.08,
                           ),
-                          onTap: () {},
-                        ),
-
-                        ListTile(
-                          title: Text(
-                            "Избранное",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: "Montserrat",
-                              fontWeight: FontWeight.w500,
-                              fontSize: widthScreen * 0.05,
-                            ),
-                          ),
-                          trailing: Icon(
-                            Icons.navigate_next,
-                            color: Color(0xFFFF5900),
-                            size: widthScreen * 0.08,
-                          ),
-                          onTap: () {},
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('У вас пока нет скидок'),
+                                backgroundColor: Colors.grey[700],
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          },
                         ),
 
                         ListTile(
@@ -238,13 +300,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Color(0xFFFF5900),
                             size: widthScreen * 0.08,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Пока не доступно'),
+                                backgroundColor: Colors.grey[700],
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ).toList(),
                   ),
 
-                  SizedBox(height: heightScreen * 0.03),
+                  SizedBox(height: heightScreen * 0.04),
 
                   TextButton.icon(
                     onPressed: exitAccount,

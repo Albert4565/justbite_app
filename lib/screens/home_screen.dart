@@ -9,14 +9,16 @@ import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int initialIndex;
+
+  const HomeScreen({super.key, this.initialIndex = 0});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int myIndex = 0;
+  late int myIndex;
 
   List<Map<String, dynamic>> popularDishes = [];
   List<Map<String, dynamic>> categories = [];
@@ -25,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    myIndex = widget.initialIndex;
     loadData();
   }
 
@@ -280,6 +283,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     imageUrl,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(color: Colors.grey[300]);
+                                    },
                                   ),
                                 ),
                               ),

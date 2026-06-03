@@ -221,6 +221,9 @@ class _DishScreenState extends State<DishScreen> {
                                         fit: BoxFit.cover,
                                         width: double.infinity,
                                         height: double.infinity,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(color: Colors.grey[300]);
+                                        },
                                       ),
                                     ),
                                   ),
@@ -311,19 +314,6 @@ class _DishScreenState extends State<DishScreen> {
                                                     image,
                                                     prepTime:
                                                         dish['prepTime'] ?? 20,
-                                                  );
-
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(
-                                                        'Блюдо "$name" добавлено в корзину',
-                                                      ),
-                                                      duration: Duration(
-                                                        seconds: 1,
-                                                      ),
-                                                    ),
                                                   );
                                                 },
                                               ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'catalog_screen.dart';
 import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'order_screen.dart';
+import 'home_screen.dart';
 
 class BasketScreen extends StatelessWidget {
   const BasketScreen({super.key});
@@ -41,7 +41,7 @@ class BasketScreen extends StatelessWidget {
                   if (cartProvider.itemsList.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Корзина уже пуста'),
+                        content: Text('Корзина пуста'),
                         backgroundColor: Colors.grey,
                         duration: Duration(seconds: 1),
                       ),
@@ -61,12 +61,6 @@ class BasketScreen extends StatelessWidget {
                             onPressed: () {
                               cartProvider.clear();
                               Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Корзина очищена'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
                             },
                             child: Text('Очистить'),
                           ),
@@ -123,7 +117,7 @@ class BasketScreen extends StatelessWidget {
 
                     Padding(
                       padding: EdgeInsets.only(
-                        bottom: heightScreen * 0.03,
+                        bottom: heightScreen * 0.05,
                         left: widthScreen * 0.1,
                         right: widthScreen * 0.1,
                       ),
@@ -132,10 +126,11 @@ class BasketScreen extends StatelessWidget {
                         width: widthScreen * 0.8,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const CatalogScreen(),
+                                builder: (context) =>
+                                    const HomeScreen(initialIndex: 1),
                               ),
                             );
                           },
@@ -188,6 +183,13 @@ class BasketScreen extends StatelessWidget {
                                 width: widthScreen * 0.18,
                                 height: heightScreen * 0.08,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[300],
+                                    width: widthScreen * 0.18,
+                                    height: heightScreen * 0.08,
+                                  );
+                                },
                               ),
                               title: Text(
                                 item.name,
@@ -196,6 +198,8 @@ class BasketScreen extends StatelessWidget {
                                   fontFamily: "Montserrat",
                                   fontWeight: FontWeight.w500,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
                                 '${item.price} ₽',
