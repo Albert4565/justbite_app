@@ -12,6 +12,15 @@ class CatalogScreen extends StatefulWidget {
 }
 
 class _CatalogScreenState extends State<CatalogScreen> {
+  final searchController = TextEditingController();
+  String searchQuery = '';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -52,8 +61,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
+                      controller: searchController,
+                      textAlign: TextAlign.left,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF666666),
                         fontWeight: FontWeight.w500,
                         fontFamily: "Montserrat",
                         fontSize: widthScreen * 0.05,
@@ -68,16 +79,38 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         prefixIcon: Icon(
                           Icons.search,
                           color: Color(0xFFC9C9C9),
+                          size: widthScreen * 0.05,
                         ),
+                        suffixIcon: searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Color(0xFFC9C9C9),
+                                  size: widthScreen * 0.05,
+                                ),
+                                onPressed: () {
+                                  searchController.clear();
+                                  setState(() {
+                                    searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
                         border: InputBorder.none,
                         prefixIconConstraints: BoxConstraints(
                           minHeight: heightScreen * 0.01,
                           minWidth: widthScreen * 0.1,
                         ),
-                        contentPadding: EdgeInsets.only(
-                          right: widthScreen * 0.05,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: widthScreen * 0.02,
+                          vertical: heightScreen * 0.015,
                         ),
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value.toLowerCase().trim();
+                        });
+                      },
                     ),
                   ),
                 ),
@@ -98,10 +131,28 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       return Center(child: Text('Ошибка: ${snapshot.error}'));
                     }
 
-                    final categories = snapshot.data!.docs;
+                    final allCategories = snapshot.data!.docs;
+                    final categories = allCategories.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final name = (data['name'] ?? '')
+                          .toString()
+                          .toLowerCase();
+                      return name.contains(searchQuery);
+                    }).toList();
 
                     if (categories.isEmpty) {
-                      return Center(child: Text('Нет категорий'));
+                      return Center(
+                        child: Text(
+                          searchQuery.isNotEmpty
+                            ? 'Категории не найдены'
+                            : 'Нет категорий',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: widthScreen * 0.045,
+                            fontFamily: "Montserrat",
+                          ),
+                        ),
+                      );
                     }
 
                     return ListView.separated(

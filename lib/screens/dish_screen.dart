@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'basket_screen.dart';
 import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +18,15 @@ class DishScreen extends StatefulWidget {
 }
 
 class _DishScreenState extends State<DishScreen> {
+  final searchController = TextEditingController();
+  String searchQuery = '';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -36,15 +44,17 @@ class _DishScreenState extends State<DishScreen> {
           icon: Icon(Icons.arrow_back, color: Color(0xFFFF5900)),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: true,
+        centerTitle: false,
         title: Container(
           height: heightScreen * 0.05,
+          width: widthScreen * 0.65,
           decoration: BoxDecoration(
             color: const Color(0xFFECECEC),
             borderRadius: BorderRadius.circular(15),
           ),
           child: TextField(
-            textAlign: TextAlign.center,
+            controller: searchController,
+            textAlign: TextAlign.left,
             style: TextStyle(
               color: Color(0xFF666666),
               fontFamily: 'Montserrat',
@@ -61,29 +71,34 @@ class _DishScreenState extends State<DishScreen> {
               prefixIcon: Icon(
                 Icons.search,
                 color: const Color(0xFFC9C9C9),
-                size: widthScreen * 0.06,
+                size: widthScreen * 0.05,
               ),
+              suffixIcon: searchQuery.isNotEmpty
+                ? IconButton(
+                  icon: Icon(Icons.clear, color: Color(0xFFC9C9C9), size: widthScreen * 0.04),
+                  onPressed: () {
+                    searchController.clear();
+                    setState(() {
+                      searchQuery = '';
+                    });
+                  },
+                )
+                : null,
               border: InputBorder.none,
               filled: true,
               fillColor: Colors.transparent,
               contentPadding: EdgeInsets.symmetric(
-                horizontal: widthScreen * 0.04,
+                horizontal: widthScreen * 0.02,
                 vertical: heightScreen * 0.01,
               ),
             ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart_outlined, color: Color(0xFFFF5900)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BasketScreen()),
-              );
+            onChanged: (value) {
+              setState(() {
+                searchQuery = value.toLowerCase().trim();
+              });
             },
           ),
-        ],
+        ),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -134,12 +149,21 @@ class _DishScreenState extends State<DishScreen> {
                       );
                     }
 
-                    final dishes = snapshot.data!.docs;
+                    final allDishes = snapshot.data!.docs;
+                    final dishes = allDishes.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final name = (data['name'] ?? '')
+                          .toString()
+                          .toLowerCase();
+                      return name.contains(searchQuery);
+                    }).toList();
 
                     if (dishes.isEmpty) {
                       return Center(
                         child: Text(
-                          'Нет блюд в этой категории',
+                          searchQuery.isNotEmpty
+                          ? 'Ничего не найдено'
+                          : 'Нет блюд в этой категории',
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: widthScreen * 0.045,
@@ -285,7 +309,8 @@ class _DishScreenState extends State<DishScreen> {
                                                     name,
                                                     price.toDouble(),
                                                     image,
-                                                    prepTime: dish['prepTime'] ?? 20,
+                                                    prepTime:
+                                                        dish['prepTime'] ?? 20,
                                                   );
 
                                                   ScaffoldMessenger.of(
