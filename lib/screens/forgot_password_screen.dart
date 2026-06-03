@@ -40,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           return AlertDialog(
             title: Text('Письмо'),
             content: Text(
-              'Письмо с подтвеждением отправлено на вашу электронную почту',
+              'Письмо с подтвеждением отправлено на вашу электронную почту (проверьте также папку "спам")',
             ),
             actions: [
               TextButton(

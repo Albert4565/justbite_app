@@ -14,7 +14,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   String paymentMethod = 'Наличные';
-  final TextEditingController commentController = TextEditingController();
+  final commentController = TextEditingController();
 
   int get totalPrepTime {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
@@ -26,6 +26,20 @@ class _OrderScreenState extends State<OrderScreen> {
     );
 
     return totalTime;
+  }
+
+  String formatPrepTime(int totalMinutes) {
+    if (totalMinutes < 60) {
+      return '~$totalMinutes мин';
+    } else {
+      final hours = totalMinutes ~/ 60;
+      final minutes = totalMinutes % 60;
+      if (minutes == 0) {
+        return '~$hours ч';
+      } else {
+        return '~$hours ч $minutes мин';
+      }
+    }
   }
 
   @override
@@ -153,7 +167,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                         ),
                                         SizedBox(width: widthScreen * 0.02),
                                         Text(
-                                          '~${cartProvider.totalPrepTime} мин',
+                                          formatPrepTime(cartProvider.totalPrepTime),
                                           style: TextStyle(
                                             fontSize: widthScreen * 0.04,
                                             fontFamily: "Montserrat",
@@ -352,6 +366,14 @@ class _OrderScreenState extends State<OrderScreen> {
                                         width: widthScreen * 0.18,
                                         height: heightScreen * 0.08,
                                         fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[300],
+                                                width: widthScreen * 0.18,
+                                                height: heightScreen * 0.08,
+                                              );
+                                            },
                                       ),
                                     ),
                                     SizedBox(width: widthScreen * 0.03),
@@ -501,6 +523,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                             .toList(),
                                         'totalAmount': cartProvider.totalAmount,
                                         'status': 'Принят',
+                                        'comment': commentController.text.trim(),
                                         'createdAt':
                                             FieldValue.serverTimestamp(),
                                       });
@@ -542,9 +565,8 @@ class _OrderScreenState extends State<OrderScreen> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.grey[100],
-                                              borderRadius: BorderRadius.circular(
-                                                10,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
                                             child: Row(
                                               mainAxisAlignment:
@@ -559,9 +581,10 @@ class _OrderScreenState extends State<OrderScreen> {
                                                   width: widthScreen * 0.02,
                                                 ),
                                                 Text(
-                                                  '~${cartProvider.totalPrepTime} мин',
+                                                  formatPrepTime(cartProvider.totalPrepTime),
                                                   style: TextStyle(
-                                                    fontSize: widthScreen * 0.04,
+                                                    fontSize:
+                                                        widthScreen * 0.04,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
@@ -569,7 +592,9 @@ class _OrderScreenState extends State<OrderScreen> {
                                             ),
                                           ),
 
-                                          SizedBox(height: heightScreen * 0.013),
+                                          SizedBox(
+                                            height: heightScreen * 0.013,
+                                          ),
 
                                           Text(
                                             'Итого: ${cartProvider.totalAmount.toStringAsFixed(0)} ₽',
@@ -590,7 +615,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                             ),
                                           ),
                                           Text(
-                                            '+7 (800) 555-35-35',
+                                            '+7 (888) 321-52-67',
                                             style: TextStyle(
                                               fontSize: widthScreen * 0.04,
                                               fontWeight: FontWeight.w600,
@@ -617,7 +642,9 @@ class _OrderScreenState extends State<OrderScreen> {
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xFFFF5900),
+                                              backgroundColor: Color(
+                                                0xFFFF5900,
+                                              ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(15),

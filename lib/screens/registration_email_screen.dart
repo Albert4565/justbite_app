@@ -383,7 +383,15 @@ class _RegistrationEmailScreenState extends State<RegistrationEmailScreen> {
                       backgroundColor: Colors.white,
                       side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('В разработке'),
+                          backgroundColor: Colors.grey[700],
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -421,7 +429,15 @@ class _RegistrationEmailScreenState extends State<RegistrationEmailScreen> {
                       backgroundColor: Colors.white,
                       side: BorderSide(color: Color(0xFFE0E0E0)),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('В разработке'),
+                          backgroundColor: Colors.grey[700],
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
