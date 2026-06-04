@@ -112,9 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .doc(FirebaseAuth.instance.currentUser!.uid)
                                   .snapshots(),
                               builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
+                                if (!snapshot.hasData || !snapshot.data!.exists) {
                                   return Text(
-                                    "Загрузка...",
+                                    "Неизвестно",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontFamily: "Montserrat",
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final userData =
                                     snapshot.data!.data()
                                         as Map<String, dynamic>;
-                                final address = userData['address'];
+                                final address = userData['address'] ?? 'Не указано';
                                 final cityLabel = userData['cityLabel'] ?? '';
 
                                 return Text(
@@ -159,9 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               .doc(FirebaseAuth.instance.currentUser!.uid)
                               .snapshots(),
                           builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
+                            if (!snapshot.hasData || !snapshot.data!.exists) {
                               return Text(
-                                "Загрузка...",
+                                "Неизвестно",
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontFamily: "Montserrat",
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             final userData =
                                 snapshot.data!.data() as Map<String, dynamic>;
-                            final name = userData['name'];
+                            final name = userData['name'] ?? 'Не указано';
 
                             return Text(
                               '$name',

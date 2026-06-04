@@ -107,9 +107,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .doc(FirebaseAuth.instance.currentUser!.uid)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
                         return Text(
-                          "Загрузка...",
+                          "Неизвестно",
                           style: TextStyle(
                             color: Colors.black,
                             fontFamily: "Montserrat",
@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       final userData =
                           snapshot.data!.data() as Map<String, dynamic>;
-                      final name = userData['name'];
+                      final name = userData['name'] ?? 'Не указано';
 
                       return Text(
                         '$name',
@@ -145,9 +145,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .doc(FirebaseAuth.instance.currentUser!.uid)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
                         return Text(
-                          "Загрузка...",
+                          "Неизвестно",
                           style: TextStyle(
                             color: Colors.black,
                             fontFamily: "Montserrat",
@@ -159,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       final userData =
                           snapshot.data!.data() as Map<String, dynamic>;
-                      final phone = userData['phone'];
+                      final phone = userData['phone'] ?? 'Не указано';
 
                       return Text(
                         '$phone',
@@ -183,9 +183,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .doc(FirebaseAuth.instance.currentUser!.uid)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
                         return Text(
-                          "Загрузка...",
+                          "Неизвестно",
                           style: TextStyle(
                             color: Colors.black,
                             fontFamily: "Montserrat",
@@ -197,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       final userData =
                           snapshot.data!.data() as Map<String, dynamic>;
-                      final email = userData['email'];
+                      final email = userData['email'] ?? 'Не указано';
 
                       return Text(
                         '$email',
@@ -221,9 +221,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .doc(FirebaseAuth.instance.currentUser!.uid)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
                         return Text(
-                          "Загрузка...",
+                          "Неизвестно",
                           style: TextStyle(
                             color: Colors.black,
                             fontFamily: "Montserrat",
@@ -236,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final userData =
                           snapshot.data!.data() as Map<String, dynamic>;
                       final city = userData['cityLabel'] ?? '';
-                      final address = userData['address'] ?? '';
+                      final address = userData['address'] ?? 'Не указано';
 
                       return Text(
                         '$city, $address',
